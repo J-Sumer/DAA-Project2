@@ -4,6 +4,14 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <vector>
+#include <cstring>
+#include <array>
+using namespace std;
 
 // A structure to represent a node in adjacency list
 struct AdjListNode
@@ -30,8 +38,11 @@ struct Graph
 // A utility function to create a new adjacency list node
 struct AdjListNode *newAdjListNode(int dest, int weight)
 {
-	struct AdjListNode *newNode = (struct AdjListNode *)malloc(
-		sizeof(struct AdjListNode));
+	// struct AdjListNode *newNode = (struct AdjListNode *)malloc(
+	// 	sizeof(struct AdjListNode));
+	struct AdjListNode *newNode = new AdjListNode; 
+	// (struct AdjListNode *)malloc(
+	// 	sizeof(struct AdjListNode));
 	newNode->dest = dest;
 	newNode->weight = weight;
 	newNode->next = NULL;
@@ -41,7 +52,9 @@ struct AdjListNode *newAdjListNode(int dest, int weight)
 // A utility function that creates a graph of V vertices
 struct Graph *createGraph(int V)
 {
-	struct Graph *graph = (struct Graph *)malloc(sizeof(struct Graph));
+	// struct Graph *graph = (struct Graph *)malloc(sizeof(struct Graph));
+	struct Graph *graph = new Graph;
+	// (struct Graph *)malloc(sizeof(struct Graph));
 	graph->V = V;
 
 	// Create an array of adjacency lists. Size of array will be V
@@ -99,12 +112,15 @@ struct MinHeapNode *newMinHeapNode(int v, int key)
 // A utility function to create a Min Heap
 struct MinHeap *createMinHeap(int capacity)
 {
-	struct MinHeap *minHeap = (struct MinHeap *)malloc(sizeof(struct MinHeap));
+	// struct MinHeap *minHeap = (struct MinHeap *)malloc(sizeof(struct MinHeap));
+	struct MinHeap *minHeap = new MinHeap;
 	minHeap->pos = (int *)malloc(capacity * sizeof(int));
 	minHeap->size = 0;
 	minHeap->capacity = capacity;
 	minHeap->array = (struct MinHeapNode **)malloc(
 		capacity * sizeof(struct MinHeapNode *));
+	// MinHeapNode mhn[] = new MinHeapNode; 
+	// minHeap->array = new MinHeapNode{};
 	return minHeap;
 }
 
@@ -208,10 +224,14 @@ bool isInMinHeap(struct MinHeap *minHeap, int v)
 }
 
 // A utility function used to print the constructed MST
-void printArr(int arr[], int n)
+void printArr(int arr[], int n, struct Graph *graph)
 {
-	for (int i = 1; i < n; ++i)
-		printf("%d - %d\n", arr[i], i);
+	// print g here
+	std::cout << "g" << " " << graph->V << " " << n-1 << std::endl;
+	for (int i = 1; i < n; ++i){
+		// printf("%d - %d\n", arr[i], i);
+		std::cout << "e" << " " << arr[i] << " " << i << std::endl;
+	}
 }
 
 // The main function that constructs Minimum Spanning Tree (MST) using Prim's algorithm
@@ -266,7 +286,7 @@ void PrimMST(struct Graph *graph)
 	}
 
 	// print edges of MST
-	printArr(parent, V);
+	printArr(parent, V, graph);
 }
 
 // Driver program to test above functions
