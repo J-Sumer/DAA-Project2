@@ -1,6 +1,6 @@
 // C / C++ program for Prim's MST for adjacency list
 // representation of graph
-
+#include <cmath>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,7 +11,19 @@
 #include <vector>
 #include <cstring>
 #include <array>
+#include <chrono>
+#include <time.h>
+using namespace std::chrono;
 using namespace std;
+
+long comparisions = 0;
+long weight = 0;
+
+bool compare(int a, int b) {
+	comparisions++;
+	if(a < b) return true;
+	return false;
+}
 
 // A structure to represent a node in adjacency list
 struct AdjListNode
@@ -38,11 +50,7 @@ struct Graph
 // A utility function to create a new adjacency list node
 struct AdjListNode *newAdjListNode(int dest, int weight)
 {
-	// struct AdjListNode *newNode = (struct AdjListNode *)malloc(
-	// 	sizeof(struct AdjListNode));
-	struct AdjListNode *newNode = new AdjListNode; 
-	// (struct AdjListNode *)malloc(
-	// 	sizeof(struct AdjListNode));
+	struct AdjListNode *newNode = new AdjListNode;
 	newNode->dest = dest;
 	newNode->weight = weight;
 	newNode->next = NULL;
@@ -52,9 +60,7 @@ struct AdjListNode *newAdjListNode(int dest, int weight)
 // A utility function that creates a graph of V vertices
 struct Graph *createGraph(int V)
 {
-	// struct Graph *graph = (struct Graph *)malloc(sizeof(struct Graph));
 	struct Graph *graph = new Graph;
-	// (struct Graph *)malloc(sizeof(struct Graph));
 	graph->V = V;
 
 	// Create an array of adjacency lists. Size of array will be V
@@ -119,7 +125,7 @@ struct MinHeap *createMinHeap(int capacity)
 	minHeap->capacity = capacity;
 	minHeap->array = (struct MinHeapNode **)malloc(
 		capacity * sizeof(struct MinHeapNode *));
-	// MinHeapNode mhn[] = new MinHeapNode; 
+	// MinHeapNode mhn[] = new MinHeapNode;
 	// minHeap->array = new MinHeapNode{};
 	return minHeap;
 }
@@ -139,15 +145,17 @@ void minHeapify(struct MinHeap *minHeap, int idx)
 	smallest = idx;
 	left = 2 * idx + 1;
 	right = 2 * idx + 2;
-
-	if (left < minHeap->size && minHeap->array[left]->key < minHeap->array[smallest]->key)
+	
+	// comparisions++;
+	if (left < minHeap->size && compare(minHeap->array[left]->key, minHeap->array[smallest]->key))
 		smallest = left;
 
-	if (right < minHeap->size && minHeap->array[right]->key < minHeap->array[smallest]->key)
+	if (right < minHeap->size && compare(minHeap->array[right]->key, minHeap->array[smallest]->key))
 		smallest = right;
 
 	if (smallest != idx)
 	{
+		
 		// The nodes to be swapped in min heap
 		MinHeapNode *smallestNode = minHeap->array[smallest];
 		MinHeapNode *idxNode = minHeap->array[idx];
@@ -203,7 +211,7 @@ void decreaseKey(struct MinHeap *minHeap, int v, int key)
 	minHeap->array[i]->key = key;
 
 	// Travel up while the complete tree is not heapified. This is a O(Logn) loop
-	while (i && minHeap->array[i]->key < minHeap->array[(i - 1) / 2]->key)
+	while (i && compare(minHeap->array[i]->key, minHeap->array[(i - 1) / 2]->key))
 	{
 		// Swap this node with its parent
 		minHeap->pos[minHeap->array[i]->v] = (i - 1) / 2;
@@ -224,18 +232,27 @@ bool isInMinHeap(struct MinHeap *minHeap, int v)
 }
 
 // A utility function used to print the constructed MST
-void printArr(int arr[], int n, struct Graph *graph)
+void printMST(int arr[], int n, struct Graph *graph, int key[])
 {
+	std::cerr << "comparisions   " << comparisions << std::endl;
 	// print g here
-	std::cout << "g" << " " << graph->V << " " << n-1 << std::endl;
-	for (int i = 1; i < n; ++i){
+	std::cout << "g"
+			  << " " << graph->V - 1 << " " << n - 2 << std::endl;
+
+	for (int i = 1; i < n - 1; ++i)
+	{
 		// printf("%d - %d\n", arr[i], i);
-		std::cout << "e" << " " << arr[i]+1 << " " << i+1 << std::endl;
+		std::cout << "e"
+				  << " " << arr[i] + 1 << " " << i + 1 << std::endl;
 	}
+	std::cerr << "weight   " << weight << std::endl;
 }
 
 // The main function that constructs Minimum Spanning Tree (MST) using Prim's algorithm
-void PrimMST(struct Graph *graph) {
+void PrimMST(struct Graph *graph)
+{
+	clock_t start = clock();
+
 	int V = graph->V; // Get the number of vertices in graph
 	int parent[V];	  // Array to store constructed MST
 	int key[V];		  // Key values used to pick minimum weight edge in cut
@@ -261,21 +278,20 @@ void PrimMST(struct Graph *graph) {
 	minHeap->size = V;
 
 	// In the following loop, min heap contains all nodes not yet added to MST.
-	while (!isEmpty(minHeap))
-	{
+	while (!isEmpty(minHeap)) {
 		// Extract the vertex with minimum key value
 		struct MinHeapNode *minHeapNode = extractMin(minHeap);
 		int u = minHeapNode->v; // Store the extracted vertex number
 
 		// Traverse through all adjacent vertices of u (the extracted vertex) and update their key values
 		struct AdjListNode *pCrawl = graph->array[u].head;
-		while (pCrawl != NULL)
-		{
+		while (pCrawl != NULL) {
 			int v = pCrawl->dest;
-
+			
 			// If v is not yet included in MST and weight of u-v is less than key value of v, then update key value and parent of v
-			if (isInMinHeap(minHeap, v) && pCrawl->weight < key[v])
-			{
+			// if (isInMinHeap(minHeap, v) && compare(pCrawl->weight, key[v])) {
+			if (isInMinHeap(minHeap, v) && pCrawl->weight < key[v]) {
+				
 				key[v] = pCrawl->weight;
 				parent[v] = u;
 				decreaseKey(minHeap, v, key[v]);
@@ -284,80 +300,85 @@ void PrimMST(struct Graph *graph) {
 		}
 	}
 
+	clock_t end = clock();
+	double elapsed = double(end - start) / CLOCKS_PER_SEC;
+	elapsed = std::ceil(elapsed * 100.0) / 100.0;
+
+	std::cerr << "runtime   " << elapsed << std::endl;
+
 	// print edges of MST
-	printArr(parent, V, graph);
+	printMST(parent, V, graph, key);
 }
 
-vector<string> splitString(string str) {
-    char *arr = new char[100];
 
-    char separator = ' ';
-    int i = 0;
-    vector<string> strVec;
-    strcpy(arr, str.c_str());
+vector<string> splitString(string str)
+{
+	char *arr = new char[100];
 
-    // Temporary string used to split the string.
-    string s;
-    while (arr[i] != '\0')
-    {
-        if (arr[i] != separator)
-        {
-            // Append the char to the temp string.
-            s += arr[i];
-        }
-        else
-        {
-            strVec.push_back(s);
-            s.clear();
-        }
-        i++;
-    }
-    strVec.push_back(s);
+	char separator = ' ';
+	int i = 0;
+	vector<string> strVec;
+	strcpy(arr, str.c_str());
 
-    return strVec;
+	string s;
+	while (arr[i] != '\0')
+	{
+		if (arr[i] != separator)
+		{
+			// Append the char to the temp string.
+			s += arr[i];
+		}
+		else
+		{
+			strVec.push_back(s);
+			s.clear();
+		}
+		i++;
+	}
+	strVec.push_back(s);
+	return strVec;
 }
 
 Graph *buildAdjacencyList(string fileName)
 {
-    int V = 0;
-    fstream newfile;
-    Graph *graph;
-    newfile.open(fileName, ios::in); 
-    if (newfile.is_open())
-    { 
-        string tp;
-        vector<string> strVec;
-        while (getline(newfile, tp))
-        { 
-            strVec = splitString(tp);
+	int V = 0;
+	fstream newfile;
+	Graph *graph;
+	newfile.open(fileName, ios::in);
+	if (newfile.is_open())
+	{
+		string tp;
+		vector<string> strVec;
+		while (getline(newfile, tp))
+		{
+			strVec = splitString(tp);
 
-            if (strVec.at(0) == "g")
-            {
-                V = stoi(strVec.at(1)) + 1;
-                break;
-            }
-        }
-        // Create graph (vertices array)
-        graph = createGraph(V);
-        while (getline(newfile, tp))
-        {
-            strVec = splitString(tp);
-            if (strVec.at(0) == "e")
-            {
-                // Create Edge 
-                addEdge(graph, stoi(strVec.at(1)) - 1, stoi(strVec.at(2)) - 1, stoi(strVec.at(3)));
-                
-            }
-        }
-        newfile.close(); // close the file object.
-    }
-    return graph;
+			if (strVec.at(0) == "g")
+			{
+				V = stoi(strVec.at(1)) + 1;
+				break;
+			}
+		}
+		// Create graph (vertices array)
+		graph = createGraph(V);
+		while (getline(newfile, tp))
+		{
+			strVec = splitString(tp);
+			if (strVec.at(0) == "e")
+			{
+				// Create Edge
+				addEdge(graph, stoi(strVec.at(1)) - 1, stoi(strVec.at(2)) - 1, stoi(strVec.at(3)));
+			}
+		}
+		newfile.close(); // close the file object.
+	}
+	return graph;
 }
 
 // Driver program to test above functions
 int main(int argc, char *argv[])
 {
-    Graph *graph = buildAdjacencyList(argv[1]);
+	Graph *graph = buildAdjacencyList(argv[1]);
 	PrimMST(graph);
 	return 0;
 }
