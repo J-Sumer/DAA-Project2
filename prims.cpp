@@ -19,9 +19,11 @@ using namespace std;
 long comparisions = 0;
 long weight = 0;
 
-bool compare(int a, int b) {
+bool compare(int a, int b)
+{
 	comparisions++;
-	if(a < b) return true;
+	if (a < b)
+		return true;
 	return false;
 }
 
@@ -123,8 +125,7 @@ struct MinHeap *createMinHeap(int capacity)
 	minHeap->pos = (int *)malloc(capacity * sizeof(int));
 	minHeap->size = 0;
 	minHeap->capacity = capacity;
-	minHeap->array = (struct MinHeapNode **)malloc(
-		capacity * sizeof(struct MinHeapNode *));
+	minHeap->array = (struct MinHeapNode **)malloc(capacity * sizeof(struct MinHeapNode *));
 	// MinHeapNode mhn[] = new MinHeapNode;
 	// minHeap->array = new MinHeapNode{};
 	return minHeap;
@@ -145,7 +146,7 @@ void minHeapify(struct MinHeap *minHeap, int idx)
 	smallest = idx;
 	left = 2 * idx + 1;
 	right = 2 * idx + 2;
-	
+
 	// comparisions++;
 	if (left < minHeap->size && compare(minHeap->array[left]->key, minHeap->array[smallest]->key))
 		smallest = left;
@@ -155,7 +156,7 @@ void minHeapify(struct MinHeap *minHeap, int idx)
 
 	if (smallest != idx)
 	{
-		
+
 		// The nodes to be swapped in min heap
 		MinHeapNode *smallestNode = minHeap->array[smallest];
 		MinHeapNode *idxNode = minHeap->array[idx];
@@ -239,11 +240,37 @@ void printMST(int arr[], int n, struct Graph *graph, int key[])
 	std::cout << "g"
 			  << " " << graph->V - 1 << " " << n - 2 << std::endl;
 
+	// Print weights
+	// for (int i = 1; i < n - 1; ++i)
+	// {
+	// 	std::cout << key[i] << " ";
+	// }
+	// std::cout << std::endl;
+
+	// Print parents
+	// for (int i = 1; i < n - 1; ++i)
+	// {
+	// 	std::cout << arr[i] << " ";
+	// }
+	// std::cout << std::endl;
+
 	for (int i = 1; i < n - 1; ++i)
 	{
+		if (arr[i] == -1)
+			throw std::invalid_argument("Graph is not connected");
+		weight += key[i];
 		// printf("%d - %d\n", arr[i], i);
-		std::cout << "e"
-				  << " " << arr[i] + 1 << " " << i + 1 << std::endl;
+		if (arr[i] + 1 < i + 1)
+		{
+			std::cout << "e"
+					  << " " << arr[i] + 1 << " " << i + 1 << " " << key[i] << std::endl;
+		}
+		else
+		{
+			std::cout << "e"
+					  << " "
+					  << i + 1 << " " << arr[i] + 1 << key[i] << std::endl;
+		}
 	}
 	std::cerr << "weight   " << weight << std::endl;
 }
@@ -278,20 +305,23 @@ void PrimMST(struct Graph *graph)
 	minHeap->size = V;
 
 	// In the following loop, min heap contains all nodes not yet added to MST.
-	while (!isEmpty(minHeap)) {
+	while (!isEmpty(minHeap))
+	{
 		// Extract the vertex with minimum key value
 		struct MinHeapNode *minHeapNode = extractMin(minHeap);
 		int u = minHeapNode->v; // Store the extracted vertex number
 
 		// Traverse through all adjacent vertices of u (the extracted vertex) and update their key values
 		struct AdjListNode *pCrawl = graph->array[u].head;
-		while (pCrawl != NULL) {
+		while (pCrawl != NULL)
+		{
 			int v = pCrawl->dest;
-			
+
 			// If v is not yet included in MST and weight of u-v is less than key value of v, then update key value and parent of v
 			// if (isInMinHeap(minHeap, v) && compare(pCrawl->weight, key[v])) {
-			if (isInMinHeap(minHeap, v) && pCrawl->weight < key[v]) {
-				
+			if (isInMinHeap(minHeap, v) && pCrawl->weight < key[v])
+			{
+
 				key[v] = pCrawl->weight;
 				parent[v] = u;
 				decreaseKey(minHeap, v, key[v]);
@@ -309,7 +339,6 @@ void PrimMST(struct Graph *graph)
 	// print edges of MST
 	printMST(parent, V, graph, key);
 }
-
 
 vector<string> splitString(string str)
 {
