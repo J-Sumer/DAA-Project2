@@ -1,4 +1,2 @@
-runtime   2.85
-comparisions   16228440
 terminate called after throwing an instance of 'std::invalid_argument'
   what():  Graph is not connected
