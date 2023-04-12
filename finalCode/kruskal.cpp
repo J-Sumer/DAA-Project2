@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
 
     // run Kruskal's algorithm to find minimum spanning tree
     vector<pair<int, pair<int, int>>> edges = G->getEdges();
-    auto start_time = high_resolution_clock::now();
+    auto start = chrono::steady_clock::now();
     sort(edges.begin(), edges.end(), compare);
     UnionFind *uf = new UnionFind(V);
     int cost = 0;
@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
     }
     // calculate runtime and output weight, runtime, and number of comparisons to standard error output file
     auto end = chrono::steady_clock::now();
-    auto start = chrono::steady_clock::now();
+    // auto start = chrono::steady_clock::now();
     auto diff = chrono::duration_cast<chrono::milliseconds>(end - start);
     double runtime = diff.count() / 1000.0;
     // std::ofstream err_file("output.err");
